@@ -6,15 +6,20 @@ import { ROUTER } from '@/configs/router';
 import { useAuthContext } from '@/hooks/context';
 import { useAppDispatch } from '@/hooks/redux';
 import { NewsActions } from '@/redux/reducers/news/news.action';
+import { SemesterActions } from '@/redux/reducers/semester/action';
+import { SubjectActions } from '@/redux/reducers/subject/action';
 import { TimeoffActions } from '@/redux/reducers/timeoff/timeoff.action';
-import { IUser } from '@/types/models/IUser';
+import { UserActions } from '@/redux/reducers/user/user.action';
+import { IUser, IUserRole, IUserRoleDict } from '@/types/models/IUser';
 import { RESOURCES, SCOPES, isGrantedPermission } from '@/utils/permissions';
 import {
   Anchor,
   AppShell,
   Avatar,
+  Badge,
   Box,
   Button,
+  Col,
   Group,
   Header,
   Image,
@@ -98,7 +103,8 @@ interface UserProps {
 const User = ({ profile }: UserProps) => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
-  const { changePwd } = useAuthContext();
+  const token = localStorage.getItem('token')?.split(' ')[1];
+  const decoded = token ? JSON.parse(atob(token.split('.')[1])) : null;
 
   interface WrapperProps {
     children: ReactNode;
@@ -152,7 +158,6 @@ const User = ({ profile }: UserProps) => {
             </Button>
             <Button
               onClick={() => {
-                changePwd({ password: _newPwd });
                 close();
               }}
             >
@@ -183,7 +188,7 @@ const User = ({ profile }: UserProps) => {
             }}
           >
             <Group>
-              <Avatar radius="xl" src={profile?.avatarFileId} />
+              <Avatar radius="xl" src={''} />
               <Box sx={{ flex: 1 }}>
                 <Text size="sm" weight={500}>
                   {profile?.fullName || 'Tên tài khoản'}
@@ -227,20 +232,28 @@ const ProtectedLayout = () => {
     logout();
   };
 
-  // if (!localStorage.getItem('token')) {
-  //   return <Navigate to={ROUTER.LOGIN} />;
-  // }
+  if (!localStorage.getItem('token')) {
+    return <Navigate to={ROUTER.LOGIN} />;
+  }
 
   useLayoutEffect(() => {
-    getAuthorities();
-    getProfile();
-  }, [dispatch, getAuthorities, getProfile]);
+    dispatch(SubjectActions.getAllSubject());
+    dispatch(SemesterActions.getAllSemester());
+    dispatch(UserActions.getAllUser());
+  }, [dispatch]);
 
   useEffect(() => {
     setAuthorities(authorities);
   }, [authorities]);
 
   const navLinks: NavLinkProps[] = [
+    {
+      icon: <IconUser size="1rem" />,
+      color: 'red',
+      label: 'Quản Lý Người Dùng',
+      to: ROUTER.USER,
+      auth: isGrantedPermission(_authorities, RESOURCES.SUBJECT, SCOPES.VIEW)
+    },
     {
       icon: <IconTicTac size="1rem" />,
       color: 'blue',
@@ -295,7 +308,7 @@ const ProtectedLayout = () => {
                   <Image src={appIcon} height={32} width={32} />
                 </Anchor>
                 <Text fw={600} fz="lg">
-                  Hệ Thống Quản Lý Chăn Nuôi
+                  Hệ Thống Quản Lý Sinh Viên
                 </Text>
               </Group>
               <Group>

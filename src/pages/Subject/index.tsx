@@ -19,12 +19,13 @@ import {
   Tooltip
 } from '@mantine/core';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
-import { IconDownload, IconInfoCircle } from '@tabler/icons-react';
+import { IconDownload, IconEdit, IconInfoCircle } from '@tabler/icons-react';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { ModalAddSubject } from './components/ModalAddSubject';
 import { SubjectActions } from '@/redux/reducers/subject/action';
+import { ModalEditSubject } from './components/ModalEditSubject';
 
 export const Subject = () => {
   const { state } = useAuthContext();
@@ -43,7 +44,7 @@ export const Subject = () => {
   }, [dispatch]);
 
   const { subjects } = useAppSelector((state: RootState) => state.subject);
-
+  console.log('subjects', subjects);
   const [_records, setRecords] = useState(subjects);
   const [_query, setQuery] = useState('');
   const [debounceQuery] = useDebouncedValue(_query, 200);
@@ -71,12 +72,32 @@ export const Subject = () => {
 
   const [openedAddModal, { open: openAddModal, close: closeAddModal }] =
     useDisclosure();
+  const [openedEditModal, { open: openEditModal, close: closeEditModal }] =
+    useDisclosure();
+  const [subjectData, setSubjectData] = useState<ISubject | null>(null);
 
   const columns: DataTableColumn<ISubject>[] = [
     { accessor: 'subjectCode', title: 'Mã môn học' },
-    { accessor: 'subjectName', title: 'Họ tên' },
-    { accessor: 'creditNumber', title: 'Email' },
-    { accessor: 'description', title: 'Số điện thoại' }
+    { accessor: 'subjectName', title: 'Môn học' },
+    { accessor: 'creditNumber', title: 'Số tín chỉ' },
+    { accessor: 'description', title: 'Mô tả' },
+    {
+      accessor: '',
+      title: '',
+      render: (row) => {
+        return (
+          <Group>
+            <IconEdit
+              size={'1rem'}
+              onClick={() => {
+                openEditModal();
+                setSubjectData(row);
+              }}
+            />
+          </Group>
+        );
+      }
+    }
   ];
 
   const {
@@ -130,6 +151,19 @@ export const Subject = () => {
         size={'lg'}
       >
         <ModalAddSubject closeModal={closeAddModal} />
+      </Modal>
+
+      <Modal
+        centered
+        title="Chỉnh sửa môn học"
+        opened={openedEditModal}
+        onClose={closeEditModal}
+        size={'lg'}
+      >
+        <ModalEditSubject
+          closeModal={closeEditModal}
+          subjectData={subjectData}
+        />
       </Modal>
     </>
   );

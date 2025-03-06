@@ -2,11 +2,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useCallApi } from '@/configs/api';
 import { API_URLS } from '@/configs/api/endpoint';
-import {
-  ChangeProfilePayload,
-  ChangePwdPayload,
-  LoginPayload
-} from '@/configs/api/payload';
+import { LoginPayload } from '@/configs/api/payload';
 import { Callback } from '@/types/others/callback';
 import { NotiType, renderNotification } from '@/utils/notifications';
 import { createContext, useCallback, useReducer } from 'react';
@@ -63,7 +59,8 @@ function useAuthReducer(_state = initialState) {
       dispatch({
         type: AuthAction.LOGIN_SUCCESS
       });
-      saveToken(response.data.data);
+      console.log(response.data.token);
+      saveToken(response.data.token);
       renderNotification('Đăng nhập thành công', NotiType.SUCCESS);
       cb?.onSuccess?.();
     } else {
@@ -130,56 +127,12 @@ function useAuthReducer(_state = initialState) {
     }
   }, []);
 
-  const updateProfile = async (
-    payload: ChangeProfilePayload,
-    id: string | undefined,
-    cb?: Callback
-  ) => {
-    if (!id) return;
-    dispatch({ type: AuthAction.AUTH_ACTION_PENDING });
-
-    const api = API_URLS.Auth.changeProfile(id);
-    const { response, error } = await useCallApi({ ...api, payload });
-    if (!error && response?.status === 200) {
-      dispatch({
-        type: AuthAction.UPDATE_PROFILE
-      });
-      renderNotification('Thay đổi thông tin thành công', NotiType.SUCCESS);
-      cb?.onSuccess?.();
-    } else {
-      dispatch({ type: AuthAction.AUTH_ACTION_FAILURE });
-      renderNotification('Thay đổi thông tin thất bại', NotiType.ERROR);
-      cb?.onError?.();
-    }
-  };
-
-  const changePwd = async (payload: ChangePwdPayload, cb?: Callback) => {
-    dispatch({ type: AuthAction.AUTH_ACTION_PENDING });
-
-    const api = API_URLS.Auth.changePassword();
-
-    const { response, error } = await useCallApi({ ...api, payload });
-    if (!error && response?.status === 200) {
-      dispatch({
-        type: AuthAction.CHANGE_PWD
-      });
-      renderNotification('Thay đổi mật khẩu thành công', NotiType.SUCCESS);
-      cb?.onSuccess?.();
-    } else {
-      dispatch({ type: AuthAction.AUTH_ACTION_FAILURE });
-      renderNotification('Thay đổi mật khẩu thất bại', NotiType.ERROR);
-      cb?.onError?.();
-    }
-  };
-
   return {
     state,
     login,
     logout,
     getAuthorities,
-    getProfile,
-    updateProfile,
-    changePwd
+    getProfile
   };
 }
 
@@ -188,9 +141,7 @@ export const AuthContext = createContext<ReturnType<typeof useAuthReducer>>({
   login: async () => {},
   logout: async () => {},
   getAuthorities: async () => {},
-  getProfile: async () => {},
-  updateProfile: async () => {},
-  changePwd: async () => {}
+  getProfile: async () => {}
 });
 
 interface Props {

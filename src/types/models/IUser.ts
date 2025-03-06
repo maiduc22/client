@@ -1,32 +1,22 @@
 import { BaseModel } from '.';
-import { IRole } from './IRole';
 
 export interface IUser extends BaseModel {
   username: string;
   fullName: string;
   password: string;
-  avatar: string;
-  dob: string;
-  dayOfBirth: string;
-  description: string;
-  email: string;
-  employeeCode: string;
-  gender: IUserGender;
-  phoneNumber: string;
-  status: IUserStatus;
-  title: string;
-  avatarFileId?: string;
-  departmentId: string;
-  roles: IRole[];
-  roleIds: string[];
+  role?: IUserRole;
 }
 
-export enum IUserRole {}
-
-export enum IUserGender {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE'
+export enum IUserRole {
+  STUDENT = 'STUDENT',
+  TEACHER = 'TEACHER',
+  ADMIN = 'ADMIN'
 }
+
+export const IUserRoleOptions = Object.keys(IUserRole).map((key) => ({
+  value: IUserRole[key as keyof typeof IUserRole],
+  label: IUserRole[key as keyof typeof IUserRole]
+}));
 
 export enum IUserStatus {
   ACTIVE = 'ACTIVE',
@@ -47,16 +37,20 @@ export const IUserStatusDict: Record<
   }
 };
 
-export const IUserGenderDict: Record<
-  IUserGender,
+export const IUserRoleDict: Record<
+  IUserRole,
   { label: string; color: string }
 > = {
-  [IUserGender.FEMALE]: {
-    label: 'Nữ',
+  [IUserRole.STUDENT]: {
+    label: 'Học sinh',
     color: 'blue'
   },
-  [IUserGender.MALE]: {
-    label: 'Nam',
+  [IUserRole.TEACHER]: {
+    label: 'Giáo viên',
     color: 'orange'
+  },
+  [IUserRole.ADMIN]: {
+    label: 'Quản trị viên',
+    color: 'green'
   }
 };

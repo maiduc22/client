@@ -1,13 +1,14 @@
-import CustomLoader from '@/components/custom/CustomLoader';
-import { api } from '@/configs/api';
-import { API_URLS } from '@/configs/api/endpoint';
-import { ROUTER } from '@/configs/router';
 import { useAuthContext } from '@/hooks/context';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import usePagination from '@/hooks/use-pagination';
 import { RootState } from '@/redux/reducers';
 import { UserActions } from '@/redux/reducers/user/user.action';
-import { IUser, IUserGenderDict, IUserStatusDict } from '@/types/models/IUser';
+import {
+  IUser,
+  IUserRole,
+  IUserRoleDict,
+  IUserStatusDict
+} from '@/types/models/IUser';
 import { RESOURCES, SCOPES, isGrantedPermission } from '@/utils/permissions';
 import {
   Badge,
@@ -54,12 +55,10 @@ export const User = () => {
         users.filter((user) => {
           if (debounceQuery !== '') {
             if (
-              user.fullName
+              user.username
                 .toLowerCase()
                 .includes(debounceQuery.toLowerCase()) ||
-              user.employeeCode
-                .toLowerCase()
-                .includes(debounceQuery.toLowerCase())
+              user.fullName.toLowerCase().includes(debounceQuery.toLowerCase())
             ) {
               return true;
             }
@@ -75,29 +74,22 @@ export const User = () => {
     useDisclosure();
 
   const columns: DataTableColumn<IUser>[] = [
-    { accessor: 'employeeCode', title: 'Mã người dùng' },
+    { accessor: 'username', title: 'Tên đăng nhập' },
     { accessor: 'fullName', title: 'Họ tên' },
-    { accessor: 'email', title: 'Email' },
-    { accessor: 'phoneNumber', title: 'Số điện thoại' },
-    { accessor: 'dayOfBirth', title: 'Ngày sinh' },
     {
-      accessor: 'gender',
-      title: 'Giới tính',
-      render: ({ gender }) => {
-        return IUserGenderDict[gender].label;
-      }
-    },
-    {
-      accessor: 'status',
-      title: 'Trạng thái',
-      render: ({ status }) => {
+      accessor: 'role',
+      title: 'Vai trò',
+      render: (value) => {
         return (
-          <Badge color={IUserStatusDict[status].color}>
-            {IUserStatusDict[status].label}
+          <Badge
+            color={IUserRoleDict[value.role || IUserRole.STUDENT].color}
+            variant="filled"
+          >
+            {value.role}
           </Badge>
         );
       }
-    },
+    }
   ];
 
   const {
@@ -129,10 +121,11 @@ export const User = () => {
         </Text>
         <Group position="apart">
           <Input
-            placeholder="Tìm kiếm theo tên hoặc mã"
+            placeholder="Tìm kiếm theo tên đăng nhập, họ tên"
             miw={300}
             onChange={(e) => setQuery(e.currentTarget.value)}
           />
+          <Button onClick={openAddModal}>Thêm người dùng</Button>
           {/* <Group>
             {isGrantedPermission(
               _authorities,

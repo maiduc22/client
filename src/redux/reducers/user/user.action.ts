@@ -3,8 +3,8 @@ import { UserActionType, UserThunkAction } from './user.types';
 import { API_URLS } from '@/configs/api/endpoint';
 import { useCallApi } from '@/configs/api';
 import { NotiType, renderNotification } from '@/utils/notifications';
-import { ChangeProfilePayload, RegisterPayload } from '@/configs/api/payload';
 import { Callback } from '@/types/others/callback';
+import { CreateUserPayload } from '@/configs/api/payload';
 
 const getAllUser = (): UserThunkAction => async (dispatch: AppDispatch) => {
   dispatch({
@@ -19,17 +19,21 @@ const getAllUser = (): UserThunkAction => async (dispatch: AppDispatch) => {
     const { data } = response;
     dispatch({
       type: UserActionType.GET_ALL_USER_SUCCESS,
-      payload: data.data
+      payload: data
     });
   } else {
     dispatch({ type: UserActionType.USER_ACTION_FAILURE });
-    renderNotification('Đã có lỗi khi lấy danh sách người dùng', NotiType.ERROR);
+    renderNotification(
+      'Đã có lỗi khi lấy danh sách người dùng',
+      NotiType.ERROR
+    );
   }
 };
 
 const createUser =
-  (payload: RegisterPayload, cb?: Callback) =>
+  (payload: CreateUserPayload, cb?: Callback) =>
   async (dispatch: AppDispatch) => {
+    console.log('payload', payload);
     dispatch({
       type: UserActionType.USER_ACTION_PENDING
     });
@@ -38,9 +42,9 @@ const createUser =
 
     const { response, error } = await useCallApi({ ...api, payload });
     if (!error && response?.status === 200) {
-      dispatch({
-        type: UserActionType.CREATE_USER_SUCCESS
-      });
+      // dispatch({
+      //   type: UserActionType.CREATE_USER_SUCCESS
+      // });
       cb?.onSuccess?.();
       renderNotification('Tạo mới người dùng thành công', NotiType.SUCCESS);
     } else {
@@ -50,7 +54,7 @@ const createUser =
   };
 
 const updateUser =
-  (payload: ChangeProfilePayload, id: string | undefined, cb?: Callback) =>
+  (payload: CreateUserPayload, id: string | undefined, cb?: Callback) =>
   async (dispatch: AppDispatch) => {
     if (!id) return;
     dispatch({
@@ -71,7 +75,10 @@ const updateUser =
       );
     } else {
       dispatch({ type: UserActionType.USER_ACTION_FAILURE });
-      renderNotification('Cập nhật thông tin người dùng thất bại', NotiType.ERROR);
+      renderNotification(
+        'Cập nhật thông tin người dùng thất bại',
+        NotiType.ERROR
+      );
     }
   };
 

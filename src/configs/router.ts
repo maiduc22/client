@@ -4,5 +4,6 @@ export const ROUTER = {
   PROFILE: '/profile',
   LOGIN: '/login',
   SUBJECT: '/subject',
-  SEMESTER: '/semester'
+  SEMESTER: '/semester',
+  USER: '/user',
 };

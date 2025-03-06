@@ -23,7 +23,7 @@ const getAllSemester =
       const { data } = response;
       dispatch({
         type: SemesterActionType.GET_ALL_SEMESTER_SUCCESS,
-        payload: data.data
+        payload: data
       });
     } else {
       dispatch({ type: SemesterActionType.SEMESTER_ACTION_FAILURE });

@@ -3,7 +3,10 @@ import { SubjectActionType, SubjectThunkAction } from './types';
 import { API_URLS } from '@/configs/api/endpoint';
 import { useCallApi } from '@/configs/api';
 import { NotiType, renderNotification } from '@/utils/notifications';
-import { ChangeProfilePayload, CreateSubjectPayload, RegisterPayload, UpdateSubjectPayload } from '@/configs/api/payload';
+import {
+  CreateSubjectPayload,
+  UpdateSubjectPayload
+} from '@/configs/api/payload';
 import { Callback } from '@/types/others/callback';
 
 const getAllSubject =
@@ -20,14 +23,11 @@ const getAllSubject =
       const { data } = response;
       dispatch({
         type: SubjectActionType.GET_ALL_SUBJECT_SUCCESS,
-        payload: data.data
+        payload: data
       });
     } else {
       dispatch({ type: SubjectActionType.SUBJECT_ACTION_FAILURE });
-      renderNotification(
-        'Đã có lỗi khi lấy danh sách môn học',
-        NotiType.ERROR
-      );
+      renderNotification('Đã có lỗi khi lấy danh sách môn học', NotiType.ERROR);
     }
   };
 

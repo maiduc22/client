@@ -6,11 +6,11 @@ export const HEADERS = {
   fileHeader: () => ({
     'Content-Type': 'multipart/form-data',
     'Access-Control-Allow-Origin': '*',
-    Authorization: `Bearer ${localStorage.getItem('token')}`
+    Authorization: `${localStorage.getItem('token')}`
   }),
   authHeader: () => ({
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    Authorization: `Bearer ${localStorage.getItem('token')}`
+    Authorization: `${localStorage.getItem('token')}`
   })
 };

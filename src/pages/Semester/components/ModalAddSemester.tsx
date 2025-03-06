@@ -37,7 +37,8 @@ export const ModalAddSemester = ({ closeModal }: Props) => {
 
   return (
     <form
-      onSubmit={form.onSubmit((values) =>
+      onSubmit={form.onSubmit((values) => {
+        console.log(values);
         dispatch(
           SemesterActions.createSemester(values, {
             onSuccess: () => {
@@ -45,8 +46,8 @@ export const ModalAddSemester = ({ closeModal }: Props) => {
               closeModal();
             }
           })
-        )
-      )}
+        );
+      })}
     >
       <ScrollArea>
         <Stack spacing={'sm'}>
@@ -70,7 +71,7 @@ export const ModalAddSemester = ({ closeModal }: Props) => {
             withAsterisk
             label="Môn học"
             placeholder="Chọn môn học"
-            {...form.getInputProps('roleIds')}
+            {...form.getInputProps('subjectIds')}
           />
         </Stack>
       </ScrollArea>

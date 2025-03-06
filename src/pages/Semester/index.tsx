@@ -24,10 +24,6 @@ export const Semester = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  useLayoutEffect(() => {
-    dispatch(SemesterActions.getAllSemester());
-  }, [dispatch]);
-
   const { semesters } = useAppSelector((state: RootState) => state.semester);
 
   const [_records, setRecords] = useState(semesters);
@@ -40,7 +36,10 @@ export const Semester = () => {
         semesters.filter((s) => {
           if (debounceQuery !== '') {
             if (
-              s.semesterName.toLowerCase().includes(debounceQuery.toLowerCase())
+              s.semesterName
+                .toLowerCase()
+                .includes(debounceQuery.toLowerCase()) ||
+              s.year.toString().includes(debounceQuery)
             ) {
               return true;
             }
@@ -70,41 +69,41 @@ export const Semester = () => {
           ))}
         </Group>
       )
-    },
-    {
-      accessor: 'id',
-      title: 'Hành động',
-      render: (value) => (
-        <Group>
-          <Button
-            color="teal"
-            variant="light"
-            onClick={() =>
-              // navigate(ROUTER.SEMESTER_DETAIL.replace(':id', value))
-              console.log('navigate to detail')
-            }
-          >
-            Chi tiết
-          </Button>
-          {isGrantedPermission(
-            _authorities,
-            RESOURCES.SEMESTER,
-            SCOPES.UPDATE
-          ) && (
-            <Button
-              color="teal"
-              variant="light"
-              onClick={() =>
-                // navigate(ROUTER.SEMESTER_EDIT.replace(':id', value))
-                console.log('navigate to detail')
-              }
-            >
-              Sửa
-            </Button>
-          )}
-        </Group>
-      )
     }
+    // {
+    //   accessor: 'id',
+    //   title: '',
+    //   render: (value) => (
+    //     <Group>
+    //       <Button
+    //         color="teal"
+    //         variant="light"
+    //         onClick={() =>
+    //           // navigate(ROUTER.SEMESTER_DETAIL.replace(':id', value))
+    //           console.log('navigate to detail')
+    //         }
+    //       >
+    //         Chi tiết
+    //       </Button>
+    //       {isGrantedPermission(
+    //         _authorities,
+    //         RESOURCES.SEMESTER,
+    //         SCOPES.UPDATE
+    //       ) && (
+    //         <Button
+    //           color="teal"
+    //           variant="light"
+    //           onClick={() =>
+    //             // navigate(ROUTER.SEMESTER_EDIT.replace(':id', value))
+    //             console.log('navigate to detail')
+    //           }
+    //         >
+    //           Sửa
+    //         </Button>
+    //       )}
+    //     </Group>
+    //   )
+    // }
   ];
 
   const {
@@ -128,7 +127,7 @@ export const Semester = () => {
         </Text>
         <Group position="apart">
           <Input
-            placeholder="Tìm kiếm theo tên"
+            placeholder="Tìm kiếm theo tên học kỳ, năm học"
             miw={300}
             onChange={(e) => setQuery(e.currentTarget.value)}
           />

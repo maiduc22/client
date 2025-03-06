@@ -36,9 +36,10 @@ const Login = () => {
         <Card shadow="md" w={360}>
           <form
             onSubmit={form.onSubmit((values) => {
+              console.log('values', values);
               login(values, {
                 onSuccess: () => {
-                  navigate(ROUTER.BASE);
+                  navigate(ROUTER.USER);
                 }
               });
             })}

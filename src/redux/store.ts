@@ -17,7 +17,7 @@ const logger = createLogger({
   titleFormatter: (action) => `ACTION: ${action.type}`
 });
 
-const middlewares = composeWithDevTools(applyMiddleware(thunk, logger));
+const middlewares = composeWithDevTools(applyMiddleware(thunk));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const store: Store<RootState, any> = createStore(reducer, middlewares);

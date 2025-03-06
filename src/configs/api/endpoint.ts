@@ -4,7 +4,7 @@ import { HEADERS } from './header';
 export const API_URLS = {
   Auth: {
     login: () => ({
-      endPoint: '/authenticate',
+      endPoint: '/Users/login',
       method: 'POST',
       headers: HEADERS.header()
     }),
@@ -21,16 +21,6 @@ export const API_URLS = {
     getProfile: () => ({
       endPoint: '/me',
       method: 'GET',
-      headers: HEADERS.authHeader()
-    }),
-    changeProfile: (id: string) => ({
-      endPoint: `/me/${id}`,
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    }),
-    changePassword: () => ({
-      endPoint: `/me/change-pwd`,
-      method: 'POST',
       headers: HEADERS.authHeader()
     })
   },
@@ -78,12 +68,12 @@ export const API_URLS = {
   },
   User: {
     getAll: () => ({
-      endPoint: '/users',
+      endPoint: '/Users',
       method: 'GET',
       headers: HEADERS.authHeader()
     }),
     create: () => ({
-      endPoint: `/register`,
+      endPoint: `/Users/signup`,
       method: 'POST',
       headers: HEADERS.authHeader()
     }),
@@ -202,7 +192,7 @@ export const API_URLS = {
     }),
     update: (id: string) => ({
       endPoint: `/Subjects/${id}`,
-      method: 'POST',
+      method: 'PUT',
       headers: HEADERS.authHeader()
     }),
     delete: (id: string) => ({
