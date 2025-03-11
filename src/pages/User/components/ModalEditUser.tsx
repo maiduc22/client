@@ -1,7 +1,12 @@
 import { CreateUserPayload } from '@/configs/api/payload';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { UserActions } from '@/redux/reducers/user/user.action';
-import { classList, IUserRole, IUserRoleOptions } from '@/types/models/IUser';
+import {
+  classList,
+  IUser,
+  IUserRole,
+  IUserRoleOptions
+} from '@/types/models/IUser';
 import {
   Button,
   Group,
@@ -15,19 +20,20 @@ import { isNotEmpty, useForm } from '@mantine/form';
 
 interface Props {
   closeModal: () => void;
+  user: IUser;
 }
 
-export const ModalAddUser = ({ closeModal }: Props) => {
+export const ModalEditUser = ({ closeModal, user }: Props) => {
   const theme = useMantineTheme();
   const dispatch = useAppDispatch();
 
   const form = useForm<CreateUserPayload>({
     initialValues: {
-      username: '',
-      password: '',
-      fullName: '',
-      role: IUserRole.STUDENT,
-      className: ''
+      username: user.username,
+      password: user.password,
+      fullName: user.fullName,
+      role: user.role || IUserRole.STUDENT,
+      className: user.className
     },
     validate: {
       username: isNotEmpty('Tên đăng nhập không được bỏ trống'),
@@ -41,7 +47,7 @@ export const ModalAddUser = ({ closeModal }: Props) => {
     <form
       onSubmit={form.onSubmit((values) =>
         dispatch(
-          UserActions.createUser(values, {
+          UserActions.updateUser(values, user.id, {
             onSuccess: () => {
               dispatch(UserActions.getAllUser());
               closeModal();
@@ -86,7 +92,7 @@ export const ModalAddUser = ({ closeModal }: Props) => {
         </Stack>
       </ScrollArea>
       <Group position="right" mt={'md'}>
-        <Button type="submit">Thêm mới</Button>
+        <Button type="submit">Cập nhật</Button>
       </Group>
     </form>
   );

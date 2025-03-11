@@ -1,7 +1,7 @@
-import { BackgroundImage, Box, Center, Grid, MediaQuery } from '@mantine/core';
+import { Center, Grid } from '@mantine/core';
 import { Navigate, Outlet } from 'react-router-dom';
-import bg from '@/assets/imgs/bg.jpg';
 import { ROUTER } from '@/configs/router';
+import { IUserRole } from '@/types/models/IUser';
 
 const AuthLayout = () => {
   if (localStorage.getItem('authUser')) {
@@ -9,19 +9,16 @@ const AuthLayout = () => {
   }
 
   return (
-    <Grid style={{ width: '100vw' }} m={0} align="center" justify="center">
-      <MediaQuery smallerThan="md" styles={{ display: 'none' }}>
-        <Grid.Col p={0} md={7}>
-          <BackgroundImage src={bg}>
-            <Box
-              sx={{
-                minHeight: '100vh',
-                maxHeight: '100vh'
-              }}
-            ></Box>
-          </BackgroundImage>
-        </Grid.Col>
-      </MediaQuery>
+    <Grid
+      style={{ width: '100vw' }}
+      m={0}
+      align="center"
+      justify="center"
+      sx={{
+        minHeight: '100vh',
+        maxHeight: '100vh'
+      }}
+    >
       <Grid.Col xs={12} md={5}>
         <Center>
           <Outlet />

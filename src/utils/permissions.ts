@@ -1,7 +1,7 @@
-import { Authorities } from '@/contexts/AuthContext';
+import { IUserRole } from '@/types/models/IUser';
 
 export const isGrantedPermission = (
-  permission: Authorities | null,
+  role: IUserRole,
   resource: string,
   scope: string
 ) => {
@@ -16,7 +16,7 @@ export const isGrantedPermission = (
 
 export enum RESOURCES {
   SUBJECT = 'subject',
-  SEMESTER = 'semester',
+  SEMESTER = 'semester'
 }
 
 export enum SCOPES {

@@ -1,4 +1,3 @@
-import { IRequestStatus } from '@/types/models/IRequest';
 import { HEADERS } from './header';
 
 export const API_URLS = {
@@ -7,63 +6,6 @@ export const API_URLS = {
       endPoint: '/Users/login',
       method: 'POST',
       headers: HEADERS.header()
-    }),
-    logout: () => ({
-      endPoint: `/me/logout`,
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    }),
-    getAuthorities: () => ({
-      endPoint: '/me/authorities',
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    }),
-    getProfile: () => ({
-      endPoint: '/me',
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    })
-  },
-  Unit: {
-    getAll: () => ({
-      endPoint: `/units`,
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    }),
-    create: () => ({
-      endPoint: `/units`,
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    }),
-    update: (id: string) => ({
-      endPoint: `/units/${id}`,
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    }),
-    delete: (id: string) => ({
-      endPoint: `/units/${id}/delete`,
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    }),
-    getDetails: (id: string) => ({
-      endPoint: `/units/${id}`,
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    }),
-    addUser: (id: string) => ({
-      endPoint: `/units/${id}/add-user`,
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    }),
-    removeUser: (id: string, userId: string) => ({
-      endPoint: `/units/${id}/delete-user/?userId=${userId}`,
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    }),
-    exportExcel: () => ({
-      endPoint: `/units/export`,
-      method: 'GET',
-      headers: HEADERS.authHeader()
     })
   },
   User: {
@@ -87,9 +29,19 @@ export const API_URLS = {
       method: 'POST',
       headers: HEADERS.authHeader()
     }),
-    download: () => ({
-      endPoint: `/users/export`,
+    upload: () => ({
+      endPoint: `/Users/import-students`,
+      method: 'POST',
+      headers: HEADERS.fileHeader()
+    }),
+    getStudents: (semesterId: string, className: string) => ({
+      endPoint: `/Users/students?semesterId=${semesterId}&className=${className}`,
       method: 'GET',
+      headers: HEADERS.authHeader()
+    }),
+    postScores: (semesterId: string, studentId: string) => ({
+      endPoint: `/Scores?semesterId=${semesterId}&studentId=${studentId}`,
+      method: 'POST',
       headers: HEADERS.authHeader()
     })
   },
@@ -140,45 +92,6 @@ export const API_URLS = {
       headers: HEADERS.authHeader()
     })
   },
-  Permission: {
-    getAll: () => ({
-      endPoint: '/permissions',
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    })
-  },
-  TimeOff: {
-    request: () => ({
-      endPoint: '/time-off/request',
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    }),
-    getMyRequest: () => ({
-      endPoint: '/time-off/my-request',
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    }),
-    getMyTimeoff: () => ({
-      endPoint: '/time-off/my-timeoff',
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    }),
-    getBalanceHistory: () => ({
-      endPoint: '/time-off/balance',
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    }),
-    getAllRequest: () => ({
-      endPoint: 'time-off',
-      method: 'GET',
-      headers: HEADERS.authHeader()
-    }),
-    changeStatus: (id: string, status: IRequestStatus) => ({
-      endPoint: `/time-off/${id}/change-status?status=${status}`,
-      method: 'POST',
-      headers: HEADERS.authHeader()
-    })
-  },
   Subject: {
     getAll: () => ({
       endPoint: '/Subjects',
@@ -196,8 +109,8 @@ export const API_URLS = {
       headers: HEADERS.authHeader()
     }),
     delete: (id: string) => ({
-      endPoint: `/Subjects/${id}/delete`,
-      method: 'POST',
+      endPoint: `/Subjects/${id}`,
+      method: 'DELETE',
       headers: HEADERS.authHeader()
     })
   },
@@ -214,12 +127,12 @@ export const API_URLS = {
     }),
     update: (id: string) => ({
       endPoint: `/Semesters/${id}`,
-      method: 'POST',
+      method: 'PUT',
       headers: HEADERS.authHeader()
     }),
     delete: (id: string) => ({
-      endPoint: `/Semesters/${id}/delete`,
-      method: 'POST',
+      endPoint: `/Semesters/${id}`,
+      method: 'DELETE',
       headers: HEADERS.authHeader()
     })
   }

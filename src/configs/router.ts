@@ -6,4 +6,5 @@ export const ROUTER = {
   SUBJECT: '/subject',
   SEMESTER: '/semester',
   USER: '/user',
+  POINT: '/point'
 };

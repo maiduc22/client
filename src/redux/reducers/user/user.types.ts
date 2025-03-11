@@ -14,7 +14,9 @@ export enum UserActionType {
   GET_ALL_USER_SUCCESS = 'GET_ALL_USER_ACTION_SUCCESS',
   CREATE_USER_SUCCESS = 'CREATE_USER_SUCCESS',
   UPDATE_USER_SUCCESS = 'UPDATE_USER_SUCCESS',
-  DELETE_USER_SUCCESS = 'DELETE_USER_SUCCESS'
+  DELETE_USER_SUCCESS = 'DELETE_USER_SUCCESS',
+  GET_STUDENTS_SUCCESS = 'GET_STUDENTS_SUCCESS',
+  POST_SCORES_SUCCESS = 'POST_SCORES_SUCCESS'
 }
 
 export interface UserActionPending {
@@ -42,13 +44,24 @@ export interface DeleteUserSuccess {
   type: UserActionType.DELETE_USER_SUCCESS;
 }
 
+export interface GetStudentsSuccess {
+  type: UserActionType.GET_STUDENTS_SUCCESS;
+  payload: IUser[];
+}
+
+export interface PostScoresSuccess {
+  type: UserActionType.POST_SCORES_SUCCESS;
+}
+
 export type UserAction =
   | UserActionPending
   | UserActionFailure
   | GetAllUserSuccess
   | CreateUserSuccess
   | UpdateUserSuccess
-  | DeleteUserSuccess;
+  | DeleteUserSuccess
+  | GetStudentsSuccess
+  | PostScoresSuccess;
 
 export type UserThunkAction = ThunkAction<
   void,

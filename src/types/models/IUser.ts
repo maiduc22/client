@@ -5,6 +5,7 @@ export interface IUser extends BaseModel {
   fullName: string;
   password: string;
   role?: IUserRole;
+  className?: string;
 }
 
 export enum IUserRole {
@@ -54,3 +55,25 @@ export const IUserRoleDict: Record<
     color: 'green'
   }
 };
+
+export const classList = [
+  'CNTT',
+  'Kỹ thuật phần mềm',
+  'Quản trị kinh doanh',
+  'Kế toán',
+  'Marketing',
+  'Thiết kế đồ họa',
+  'Tài chính ngân hàng'
+];
+
+export interface IScore {
+  semesterId: number;
+  studentId: number;
+  subjectId: number;
+  midtermScore: number;
+  finalScore: number;
+}
+
+export interface IStudent extends IUser {
+  scores: IScore[];
+}

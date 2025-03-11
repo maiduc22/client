@@ -30,16 +30,15 @@ const Login = () => {
         Đăng nhập
       </Text>
       <Text align="center" color="dimmed" fz="xl">
-        Chào mừng quay trở lại. Đăng nhập để tiếp tục
+        Chào mừng quay trở lại
       </Text>
       <Center mt="sm">
         <Card shadow="md" w={360}>
           <form
             onSubmit={form.onSubmit((values) => {
-              console.log('values', values);
               login(values, {
                 onSuccess: () => {
-                  navigate(ROUTER.USER);
+                  navigate(ROUTER.POINT);
                 }
               });
             })}

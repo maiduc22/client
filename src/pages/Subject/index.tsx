@@ -19,23 +19,17 @@ import {
   Tooltip
 } from '@mantine/core';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
-import { IconDownload, IconEdit, IconInfoCircle } from '@tabler/icons-react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { ModalAddSubject } from './components/ModalAddSubject';
 import { SubjectActions } from '@/redux/reducers/subject/action';
 import { ModalEditSubject } from './components/ModalEditSubject';
+import { openConfirmModal } from '@mantine/modals';
+import { Modals } from '@/utils/modals';
 
 export const Subject = () => {
-  const { state } = useAuthContext();
-  const { authorities } = state;
-  const [_authorities, setAuthorities] = useState(authorities);
-
-  useEffect(() => {
-    setAuthorities(authorities);
-  }, [authorities]);
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -44,7 +38,6 @@ export const Subject = () => {
   }, [dispatch]);
 
   const { subjects } = useAppSelector((state: RootState) => state.subject);
-  console.log('subjects', subjects);
   const [_records, setRecords] = useState(subjects);
   const [_query, setQuery] = useState('');
   const [debounceQuery] = useDebouncedValue(_query, 200);
@@ -86,12 +79,33 @@ export const Subject = () => {
       title: '',
       render: (row) => {
         return (
-          <Group>
+          <Group position="center">
             <IconEdit
               size={'1rem'}
               onClick={() => {
                 openEditModal();
                 setSubjectData(row);
+              }}
+            />
+            <IconTrash
+              size={'1rem'}
+              onClick={() => {
+                Modals.openCustomConfirmModal({
+                  title: 'Xóa môn học',
+                  childrenText: 'Xác nhận xóa môn học này?',
+                  onConfirm: () => {
+                    dispatch(
+                      SubjectActions.deleteSubject(row.id, {
+                        onSuccess: () => {
+                          dispatch(SubjectActions.getAllSubject());
+                        }
+                      })
+                    );
+                  },
+                  onCancel: () => {
+                    //
+                  }
+                });
               }}
             />
           </Group>

@@ -3,24 +3,18 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import usePagination from '@/hooks/use-pagination';
 import { RootState } from '@/redux/reducers';
 import { ISemester } from '@/types/models/ISemester';
-import { RESOURCES, SCOPES, isGrantedPermission } from '@/utils/permissions';
 import { Badge, Button, Group, Input, Modal, Stack, Text } from '@mantine/core';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ModalAddSemester } from './components/ModalAddSemester';
 import { SemesterActions } from '@/redux/reducers/semester/action';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { ModalEditSemester } from './components/ModalEditSemester';
+import { Modals } from '@/utils/modals';
 
 export const Semester = () => {
-  const { state } = useAuthContext();
-  const { authorities } = state;
-  const [_authorities, setAuthorities] = useState(authorities);
-
-  useEffect(() => {
-    setAuthorities(authorities);
-  }, [authorities]);
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -53,6 +47,9 @@ export const Semester = () => {
 
   const [openedAddModal, { open: openAddModal, close: closeAddModal }] =
     useDisclosure();
+  const [openedEditModal, { open: openEditModal, close: closeEditModal }] =
+    useDisclosure();
+  const [semester, setSemester] = useState<ISemester | null>();
 
   const columns: DataTableColumn<ISemester>[] = [
     { accessor: 'semesterName', title: 'Học kỳ' },
@@ -69,41 +66,49 @@ export const Semester = () => {
           ))}
         </Group>
       )
+    },
+    {
+      accessor: '',
+      title: '',
+      render: (semester) => {
+        return (
+          <Group
+            style={{
+              justifyContent: 'center'
+            }}
+            color="red"
+          >
+            <IconEdit
+              size={'1rem'}
+              onClick={() => {
+                setSemester(semester);
+                openEditModal();
+              }}
+            />
+            <IconTrash
+              size={'1rem'}
+              onClick={() => {
+                Modals.openCustomConfirmModal({
+                  title: 'Xác nhận xóa',
+                  childrenText: 'Bạn có chắc chắn muốn xóa học kỳ này?',
+                  onConfirm: () => {
+                    dispatch(
+                      SemesterActions.deleteSemester(semester.id, {
+                        onSuccess: () =>
+                          dispatch(SemesterActions.getAllSemester())
+                      })
+                    );
+                  },
+                  onCancel: () => {
+                    //
+                  }
+                });
+              }}
+            />
+          </Group>
+        );
+      }
     }
-    // {
-    //   accessor: 'id',
-    //   title: '',
-    //   render: (value) => (
-    //     <Group>
-    //       <Button
-    //         color="teal"
-    //         variant="light"
-    //         onClick={() =>
-    //           // navigate(ROUTER.SEMESTER_DETAIL.replace(':id', value))
-    //           console.log('navigate to detail')
-    //         }
-    //       >
-    //         Chi tiết
-    //       </Button>
-    //       {isGrantedPermission(
-    //         _authorities,
-    //         RESOURCES.SEMESTER,
-    //         SCOPES.UPDATE
-    //       ) && (
-    //         <Button
-    //           color="teal"
-    //           variant="light"
-    //           onClick={() =>
-    //             // navigate(ROUTER.SEMESTER_EDIT.replace(':id', value))
-    //             console.log('navigate to detail')
-    //           }
-    //         >
-    //           Sửa
-    //         </Button>
-    //       )}
-    //     </Group>
-    //   )
-    // }
   ];
 
   const {
@@ -158,6 +163,18 @@ export const Semester = () => {
       >
         <ModalAddSemester closeModal={closeAddModal} />
       </Modal>
+
+      {semester && (
+        <Modal
+          centered
+          title="Cập nhật học kỳ"
+          opened={openedEditModal}
+          onClose={closeEditModal}
+          size={'lg'}
+        >
+          <ModalEditSemester semester={semester} closeModal={closeEditModal} />
+        </Modal>
+      )}
     </>
   );
 };

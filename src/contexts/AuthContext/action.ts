@@ -1,4 +1,4 @@
-import { IUser } from '@/types/models/IUser';
+import { IUser, IUserRole } from '@/types/models/IUser';
 import { Authorities } from '.';
 
 export enum AuthAction {
@@ -23,6 +23,12 @@ interface AuthActionFailure {
 
 interface LoginSuccess {
   type: AuthAction.LOGIN_SUCCESS;
+  payload: {
+    fullname: string;
+    role: IUserRole;
+    className: string;
+    id: string;
+  };
 }
 
 interface Logout {

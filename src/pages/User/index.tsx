@@ -3,51 +3,43 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import usePagination from '@/hooks/use-pagination';
 import { RootState } from '@/redux/reducers';
 import { UserActions } from '@/redux/reducers/user/user.action';
-import {
-  IUser,
-  IUserRole,
-  IUserRoleDict,
-  IUserStatusDict
-} from '@/types/models/IUser';
-import { RESOURCES, SCOPES, isGrantedPermission } from '@/utils/permissions';
+import { IUser, IUserRole, IUserRoleDict } from '@/types/models/IUser';
 import {
   Badge,
   Button,
+  FileInput,
   Group,
   Input,
   Modal,
+  Select,
   Stack,
-  Text,
-  Tooltip
+  Text
 } from '@mantine/core';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
-import { IconDownload, IconInfoCircle } from '@tabler/icons-react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
-import { useEffect, useLayoutEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ModalAddUser } from './components/ModalAddUser';
+import { ModalEditUser } from './components/ModalEditUser';
 
 export const User = () => {
-  const { state } = useAuthContext();
-  const { authorities } = state;
-  const [_authorities, setAuthorities] = useState(authorities);
-
-  useEffect(() => {
-    setAuthorities(authorities);
-  }, [authorities]);
-
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   useLayoutEffect(() => {
     dispatch(UserActions.getAllUser());
   }, [dispatch]);
 
   const { users } = useAppSelector((state: RootState) => state.user);
-
+  const [user, setUser] = useState<IUser | null>();
   const [_records, setRecords] = useState(users);
   const [_query, setQuery] = useState('');
   const [debounceQuery] = useDebouncedValue(_query, 200);
+  const [openedAddModal, { open: openAddModal, close: closeAddModal }] =
+    useDisclosure();
+  const [openedEditModal, { open: openEditModal, close: closeEditModal }] =
+    useDisclosure();
+  const [openedDownloadModal, { open, close }] = useDisclosure();
+  const fileRef = useRef<HTMLButtonElement>(null);
 
   useEffect(
     () =>
@@ -70,9 +62,6 @@ export const User = () => {
     [users, debounceQuery]
   );
 
-  const [openedAddModal, { open: openAddModal, close: closeAddModal }] =
-    useDisclosure();
-
   const columns: DataTableColumn<IUser>[] = [
     { accessor: 'username', title: 'Tên đăng nhập' },
     { accessor: 'fullName', title: 'Họ tên' },
@@ -87,6 +76,33 @@ export const User = () => {
           >
             {value.role}
           </Badge>
+        );
+      }
+    },
+    {
+      accessor: '',
+      title: '',
+      render: () => {
+        return (
+          <Group
+            style={{
+              justifyContent: 'center'
+            }}
+            color="red"
+          >
+            <IconEdit
+              size={'1rem'}
+              onClick={() => {
+                openEditModal();
+              }}
+            />
+            <IconTrash
+              size={'1rem'}
+              onClick={() => {
+                // Delete user
+              }}
+            />
+          </Group>
         );
       }
     }
@@ -105,14 +121,6 @@ export const User = () => {
     }
   });
 
-  // if (!_authorities) {
-  //   return <CustomLoader />;
-  // }
-
-  // if (!isGrantedPermission(_authorities, RESOURCES.USER, SCOPES.VIEW)) {
-  //   return <Navigate to={ROUTER.UNAUTHORIZE} />;
-  // }
-
   return (
     <>
       <Stack>
@@ -125,7 +133,18 @@ export const User = () => {
             miw={300}
             onChange={(e) => setQuery(e.currentTarget.value)}
           />
-          <Button onClick={openAddModal}>Thêm người dùng</Button>
+          <Group>
+            <Button variant={'outline'} onClick={() => open()}>
+              Tải báo cáo
+            </Button>
+            <Button
+              variant={'outline'}
+              onClick={() => fileRef.current?.click()}
+            >
+              Tải lên Excel
+            </Button>
+            <Button onClick={openAddModal}>Thêm người dùng</Button>
+          </Group>
           {/* <Group>
             {isGrantedPermission(
               _authorities,
@@ -160,6 +179,66 @@ export const User = () => {
         size={'lg'}
       >
         <ModalAddUser closeModal={closeAddModal} />
+      </Modal>
+
+      {user && (
+        <Modal
+          centered
+          title="Sửa thông tin người dùng"
+          opened={openedEditModal}
+          onClose={closeEditModal}
+          size={'lg'}
+        >
+          <ModalEditUser closeModal={closeAddModal} user={user} />
+        </Modal>
+      )}
+
+      <FileInput
+        style={{ display: 'none' }}
+        ref={fileRef}
+        accept=".xlsx"
+        onChange={(files) => {
+          if (files) {
+            dispatch(
+              UserActions.uploadExcel(files, {
+                onSuccess: () => {
+                  dispatch(UserActions.getAllUser());
+                }
+              })
+            );
+          }
+        }}
+      />
+
+      <Modal
+        centered
+        title="Tải báo cáo"
+        opened={openedDownloadModal}
+        onClose={close}
+        size={'xs'}
+      >
+        <Stack>
+          <Select
+            defaultValue={'1'}
+            data={[
+              { value: '1', label: 'Tải báo cáo người dùng' },
+              { value: '2', label: 'Tải báo cáo người dùng' },
+              { value: '3', label: 'Tải báo cáo người dùng' }
+            ]}
+            label="Chọn loại báo cáo"
+          />
+          <Select
+            defaultValue={'1'}
+            data={[
+              { value: '1', label: 'Excel' },
+              { value: '2', label: 'PDF' }
+            ]}
+            label="Định dạng"
+          />
+          <Group position="right">
+            <Button>Xác nhận</Button>
+          </Group>
+        </Stack>
       </Modal>
     </>
   );

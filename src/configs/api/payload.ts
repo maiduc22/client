@@ -15,6 +15,7 @@ export type CreateUserPayload = {
   fullName: string;
   password: string;
   role: IUserRole;
+  className?: string;
 };
 
 //
@@ -29,6 +30,9 @@ export type CreateSemesterPayload = {
 export type UpdateSemesterPayload = CreateSemesterPayload;
 
 export type ApiEndPointPayload =
+  | File
+  | FormData
+  | string
   | LoginPayload
   | CreateUserPayload
   | CreateSubjectPayload

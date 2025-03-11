@@ -104,4 +104,80 @@ const getUserById =
       );
     }
   };
-export const UserActions = { getAllUser, createUser, updateUser, getUserById };
+
+const uploadExcel =
+  (payload: File, cb?: Callback) => async (dispatch: AppDispatch) => {
+    dispatch({
+      type: UserActionType.USER_ACTION_PENDING
+    });
+
+    const formData = new FormData();
+    formData.append('file', payload);
+    const api = API_URLS.User.upload();
+
+    const { response, error } = await useCallApi({ ...api, payload: formData });
+    if (!error && response?.status === 200) {
+      dispatch({
+        type: UserActionType.CREATE_USER_SUCCESS
+      });
+      cb?.onSuccess?.();
+      renderNotification('Tải lên file excel thành công', NotiType.SUCCESS);
+    } else {
+      dispatch({ type: UserActionType.USER_ACTION_FAILURE });
+      renderNotification('Tải lên file excel thất bại', NotiType.ERROR);
+    }
+  };
+
+const getStudents =
+  (semeterId: string, className: string, cb?: Callback) =>
+  async (dispatch: AppDispatch) => {
+    dispatch({
+      type: UserActionType.USER_ACTION_PENDING
+    });
+
+    const api = API_URLS.User.getStudents(semeterId, className);
+
+    const { response, error } = await useCallApi({ ...api });
+    if (!error && response?.status === 200) {
+      const { data } = response;
+      dispatch({
+        type: UserActionType.GET_STUDENTS_SUCCESS,
+        payload: data
+      });
+      cb?.onSuccess?.(data);
+    } else {
+      dispatch({ type: UserActionType.USER_ACTION_FAILURE });
+      renderNotification('Lấy danh sách sinh viên thất bại', NotiType.ERROR);
+    }
+  };
+
+const postScores =
+  (semesterId: string, studentId: string, payload: any, cb?: Callback) =>
+  async (dispatch: AppDispatch) => {
+    dispatch({
+      type: UserActionType.USER_ACTION_PENDING
+    });
+
+    const api = API_URLS.User.postScores(semesterId, studentId);
+
+    const { response, error } = await useCallApi({ ...api, payload });
+    if (!error && response?.status === 200) {
+      dispatch({
+        type: UserActionType.POST_SCORES_SUCCESS
+      });
+      cb?.onSuccess?.();
+      renderNotification('Tải lên điểm thành công', NotiType.SUCCESS);
+    } else {
+      dispatch({ type: UserActionType.USER_ACTION_FAILURE });
+      renderNotification('Tải lên điểm thất bại', NotiType.ERROR);
+    }
+  };
+export const UserActions = {
+  getAllUser,
+  createUser,
+  updateUser,
+  getUserById,
+  uploadExcel,
+  getStudents,
+  postScores
+};

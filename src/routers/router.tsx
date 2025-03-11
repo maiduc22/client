@@ -15,6 +15,9 @@ import Login from '../pages/Login';
 import { Subject } from '@/pages/Subject';
 import { Semester } from '@/pages/Semester';
 import { User } from '@/pages/User';
+import { Point } from '@/pages/Point';
+import ProtectedRoute from './permissionRoute';
+import { IUserRole } from '@/types/models/IUser';
 
 const router = () => {
   return createBrowserRouter(
@@ -24,10 +27,39 @@ const router = () => {
           <Route path={ROUTER.LOGIN} element={<Login />} />
         </Route>
         <Route path={ROUTER.BASE} element={<ProtectedLayout />}>
-          <Route path={ROUTER.BASE} element={<Home />} />
-          <Route path={ROUTER.SUBJECT} element={<Subject />} />
-          <Route path={ROUTER.USER} element={<User />} />
-          <Route path={ROUTER.SEMESTER} element={<Semester />} />
+          <Route
+            path={ROUTER.BASE}
+            element={
+              <ProtectedRoute allowedRoles={[IUserRole.ADMIN]}>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTER.SUBJECT}
+            element={
+              <ProtectedRoute allowedRoles={[IUserRole.ADMIN]}>
+                <Subject />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTER.USER}
+            element={
+              <ProtectedRoute allowedRoles={[IUserRole.ADMIN]}>
+                <User />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTER.SEMESTER}
+            element={
+              <ProtectedRoute allowedRoles={[IUserRole.ADMIN]}>
+                <Semester />
+              </ProtectedRoute>
+            }
+          />
+          <Route path={ROUTER.POINT} element={<Point />} />
           <Route path={ROUTER.UNAUTHORIZE} element={<Page403 />} />
           <Route path="*" element={<Page404 />} />
         </Route>
