@@ -3,7 +3,12 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import usePagination from '@/hooks/use-pagination';
 import { RootState } from '@/redux/reducers';
 import { UserActions } from '@/redux/reducers/user/user.action';
-import { IUser, IUserRole, IUserRoleDict } from '@/types/models/IUser';
+import {
+  classList,
+  IUser,
+  IUserRole,
+  IUserRoleDict
+} from '@/types/models/IUser';
 import {
   Badge,
   Button,
@@ -21,6 +26,8 @@ import { DataTable, DataTableColumn } from 'mantine-datatable';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ModalAddUser } from './components/ModalAddUser';
 import { ModalEditUser } from './components/ModalEditUser';
+import { Modals } from '@/utils/modals';
+import { CONFIG } from '@/configs';
 
 export const User = () => {
   const dispatch = useAppDispatch();
@@ -82,7 +89,7 @@ export const User = () => {
     {
       accessor: '',
       title: '',
-      render: () => {
+      render: (row) => {
         return (
           <Group
             style={{
@@ -90,16 +97,25 @@ export const User = () => {
             }}
             color="red"
           >
-            <IconEdit
-              size={'1rem'}
-              onClick={() => {
-                openEditModal();
-              }}
-            />
             <IconTrash
               size={'1rem'}
               onClick={() => {
-                // Delete user
+                Modals.openCustomConfirmModal({
+                  title: 'Xóa môn học',
+                  childrenText: 'Xác nhận xóa môn học này?',
+                  onConfirm: () => {
+                    dispatch(
+                      UserActions.deleteUser(row.id, {
+                        onSuccess: () => {
+                          dispatch(UserActions.getAllUser());
+                        }
+                      })
+                    );
+                  },
+                  onCancel: () => {
+                    //
+                  }
+                });
               }}
             />
           </Group>
@@ -120,6 +136,10 @@ export const User = () => {
       pageSize: 10
     }
   });
+
+  const [_exportType, setExportType] = useState('1');
+  const [_fileType, setFileType] = useState('1');
+  const [_className, setClassName] = useState('1');
 
   return (
     <>
@@ -217,25 +237,61 @@ export const User = () => {
         onClose={close}
         size={'xs'}
       >
-        <Stack>
-          <Select
-            defaultValue={'1'}
-            data={[
-              { value: '1', label: 'Tải báo cáo người dùng' },
-              { value: '2', label: 'Tải báo cáo người dùng' },
-              { value: '3', label: 'Tải báo cáo người dùng' }
-            ]}
-            label="Chọn loại báo cáo"
-          />
-          <Select
-            defaultValue={'1'}
-            data={[
-              { value: '1', label: 'Excel' },
-              { value: '2', label: 'PDF' }
-            ]}
-            label="Định dạng"
-          />
-          <Group position="right">
+        <Stack justify="apart">
+          <Stack h={500}>
+            <Select
+              value={_exportType}
+              onChange={(value) => setExportType(value ?? '1')}
+              data={exportType}
+              label="Chọn loại báo cáo"
+            />
+            <Select
+              value={_fileType}
+              onChange={(value) => setFileType(value ?? '1')}
+              data={fileType}
+              label="Định dạng"
+            />
+            <Select
+              data={classList.map((item) => ({
+                value: item,
+                label: item
+              }))}
+              label="Lớp"
+              value={_className}
+              onChange={(value) => setClassName(value ?? '')}
+            />
+          </Stack>
+          <Group
+            position="right"
+            onClick={() => {
+              fetch(
+                `${CONFIG.APP_URL}/Reports/export-file?exportType=${_exportType}&fileType=${_fileType}&className=${_className}`,
+                {
+                  headers: {
+                    accept: '*/*'
+                  }
+                }
+              )
+                .then((response) => {
+                  const filename = `${
+                    exportType.find((i) => i.value === _exportType)?.name
+                  }_${_className}`;
+                  return response.blob().then((blob) => ({ blob, filename }));
+                })
+                .then(({ blob, filename }) => {
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.style.display = 'none';
+                  a.href = url;
+                  a.download = filename;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                })
+                .catch(() => alert('Failed to download file'));
+              close();
+            }}
+          >
             <Button>Xác nhận</Button>
           </Group>
         </Stack>
@@ -243,3 +299,14 @@ export const User = () => {
     </>
   );
 };
+
+const exportType = [
+  { value: '1', label: 'Báo cáo điểm', name: 'Baocaodiem' },
+  { value: '2', label: 'Báo cáo học lực', name: 'Baocaohocluc' },
+  { value: '3', label: 'Báo cáo thành tích', name: 'BaocaothanhTich' }
+];
+
+const fileType = [
+  { value: '1', label: 'Excel', name: '.xlsx' },
+  { value: '2', label: 'PDF', name: '.pdf' }
+];

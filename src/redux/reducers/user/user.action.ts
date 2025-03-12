@@ -172,6 +172,47 @@ const postScores =
       renderNotification('Tải lên điểm thất bại', NotiType.ERROR);
     }
   };
+
+const deleteUser =
+  (id: string, cb?: Callback) => async (dispatch: AppDispatch) => {
+    dispatch({
+      type: UserActionType.USER_ACTION_PENDING
+    });
+
+    const api = API_URLS.User.deleteUser(id);
+
+    const { response, error } = await useCallApi({ ...api });
+    if (!error && response?.status === 200) {
+      dispatch({
+        type: UserActionType.DELETE_USER_SUCCESS
+      });
+      cb?.onSuccess?.();
+      renderNotification('Xóa người dùng thành công', NotiType.SUCCESS);
+    } else {
+      dispatch({ type: UserActionType.USER_ACTION_FAILURE });
+      renderNotification('Xóa người dùng thất bại', NotiType.ERROR);
+    }
+  };
+
+const downloadFile =
+  (exportType: string, fileType: string, className: string) =>
+  async (dispatch: AppDispatch) => {
+    dispatch({
+      type: UserActionType.USER_ACTION_PENDING
+    });
+    const api = API_URLS.User.download(exportType, fileType, className);
+    const { response, error } = await useCallApi({ ...api });
+    if (!error && response?.status === 200) {
+      const { data } = response;
+      dispatch({
+        type: UserActionType.DOWNLOAD_FILE_SUCCESS,
+        payload: data
+      });
+    } else {
+      dispatch({ type: UserActionType.USER_ACTION_FAILURE });
+      renderNotification('Tải file thất bại', NotiType.ERROR);
+    }
+  };
 export const UserActions = {
   getAllUser,
   createUser,
@@ -179,5 +220,7 @@ export const UserActions = {
   getUserById,
   uploadExcel,
   getStudents,
-  postScores
+  postScores,
+  deleteUser,
+  downloadFile
 };

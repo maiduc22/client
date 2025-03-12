@@ -43,6 +43,16 @@ export const API_URLS = {
       endPoint: `/Scores?semesterId=${semesterId}&studentId=${studentId}`,
       method: 'POST',
       headers: HEADERS.authHeader()
+    }),
+    deleteUser: (id: string) => ({
+      endPoint: `/Users/${id}`,
+      method: 'DELETE',
+      headers: HEADERS.authHeader()
+    }),
+    download: (exportType: string, fileType: string, className: string) => ({
+      endPoint: `/Reports/export-file?exportType=${exportType}&fileType=${fileType}&className=${className}`,
+      method: 'GET',
+      headers: HEADERS.authHeader()
     })
   },
   Role: {

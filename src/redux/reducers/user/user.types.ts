@@ -16,7 +16,8 @@ export enum UserActionType {
   UPDATE_USER_SUCCESS = 'UPDATE_USER_SUCCESS',
   DELETE_USER_SUCCESS = 'DELETE_USER_SUCCESS',
   GET_STUDENTS_SUCCESS = 'GET_STUDENTS_SUCCESS',
-  POST_SCORES_SUCCESS = 'POST_SCORES_SUCCESS'
+  POST_SCORES_SUCCESS = 'POST_SCORES_SUCCESS',
+  DOWNLOAD_FILE_SUCCESS = 'DOWNLOAD_FILE_SUCCESS'
 }
 
 export interface UserActionPending {
@@ -53,6 +54,11 @@ export interface PostScoresSuccess {
   type: UserActionType.POST_SCORES_SUCCESS;
 }
 
+export interface DownloadFileSuccess {
+  type: UserActionType.DOWNLOAD_FILE_SUCCESS;
+  payload: Blob;
+}
+
 export type UserAction =
   | UserActionPending
   | UserActionFailure
@@ -61,7 +67,8 @@ export type UserAction =
   | UpdateUserSuccess
   | DeleteUserSuccess
   | GetStudentsSuccess
-  | PostScoresSuccess;
+  | PostScoresSuccess
+  | DownloadFileSuccess;
 
 export type UserThunkAction = ThunkAction<
   void,

@@ -69,7 +69,7 @@ export const Point = () => {
                       })
                       .map((classItem) => (
                         <Tabs.Tab key={classItem} value={classItem}>
-                          {classItem}
+                          Lớp {classItem}
                         </Tabs.Tab>
                       ))}
                   </Tabs.List>
@@ -145,14 +145,15 @@ const TabContent = ({
         }
       })
     );
-  }, [dispatch, semesterId, className]);
+  }, [dispatch, semesterId, className, authState.role, authState.id]);
 
   const form = useForm({
     initialValues: {
       scores: subjects.map((subject) => ({
         subjectId: subject.id,
         midtermScore: 0,
-        finalScore: 0
+        finalScore: 0,
+        credit: subject.creditNumber
       }))
     }
   });
@@ -199,7 +200,8 @@ const TabContent = ({
         return {
           subjectId: subject.id,
           midtermScore: existingScore ? existingScore.midtermScore : 0,
-          finalScore: existingScore ? existingScore.finalScore : 0
+          finalScore: existingScore ? existingScore.finalScore : 0,
+          credit: subject.creditNumber
         };
       })
     });
@@ -227,7 +229,6 @@ const TabContent = ({
             {
               accessor: '',
               title: '',
-
               render: (value) => (
                 <Group position="center">
                   <IconInfoCircle
@@ -310,6 +311,30 @@ const TabContent = ({
                 </Group>
               </div>
             ))}
+            <Group position={'left'} mt={5}>
+              <Text size={'md'} color={'red'} fw={600}>
+                {'Điểm GPA'}
+              </Text>
+              <Text size={'md'} color={'red'} fw={600}>
+                {(
+                  subjects.reduce((acc, subject, index) => {
+                    const score = form.values.scores[index];
+                    return (
+                      acc +
+                      calculateFinalScore(
+                        score.midtermScore,
+                        score.finalScore
+                      ) *
+                        score.credit
+                    );
+                  }, 0) /
+                  subjects.reduce(
+                    (acc, subject) => acc + subject.creditNumber,
+                    0
+                  )
+                ).toFixed(2)}
+              </Text>
+            </Group>
             {authState.role !== IUserRole.STUDENT && (
               <Group position={'right'}>
                 <Button mt={20} type="submit">
