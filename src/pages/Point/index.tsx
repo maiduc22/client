@@ -172,8 +172,6 @@ export const Point = () => {
                   }
                 )
                   .then((response) => {
-                    //todo: addfilename time to filename to avoid duplicate file name 2025-12-17 12:00:00
-                    // write the time to a string 20251217120000
                     const filename = `${
                       exportType.find((i) => i.value === _exportType)?.name
                     }_${_className}_${new Date()
@@ -459,7 +457,9 @@ const calculateFinalScore = (
   midtermScore: number,
   finalScore: number
 ): number => {
-  return Math.round((midtermScore * 0.4 + finalScore * 0.6) * 100) / 100;
+  return (
+    (Math.round((midtermScore * 0.4 + finalScore * 0.6) * 100) * 0.4) / 100
+  );
 };
 
 const exportType = [
