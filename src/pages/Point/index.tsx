@@ -166,14 +166,19 @@ export const Point = () => {
                   `${CONFIG.APP_URL}/Reports/export-file?exportType=${_exportType}&fileType=${_fileType}&className=${_className}`,
                   {
                     headers: {
-                      accept: '*/*'
+                      accept: '*/*',
+                      Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                   }
                 )
                   .then((response) => {
+                    //todo: addfilename time to filename to avoid duplicate file name 2025-12-17 12:00:00
+                    // write the time to a string 20251217120000
                     const filename = `${
                       exportType.find((i) => i.value === _exportType)?.name
-                    }_${_className}`;
+                    }_${_className}_${new Date()
+                      .toISOString()
+                      .replace(/[^0-9]/g, '')}`;
                     return response.blob().then((blob) => ({ blob, filename }));
                   })
                   .then(({ blob, filename }) => {
