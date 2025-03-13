@@ -471,6 +471,6 @@ const exportType = [
 ];
 
 const fileType = [
-  { value: '1', label: 'Excel', name: '.xlsx' },
-  { value: '2', label: 'PDF', name: '.pdf' }
+  { value: '1', label: 'Excel', name: 'xlsx' },
+  { value: '2', label: 'PDF', name: 'pdf' }
 ];
