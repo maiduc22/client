@@ -176,7 +176,9 @@ export const Point = () => {
                       exportType.find((i) => i.value === _exportType)?.name
                     }_${_className}_${new Date()
                       .toISOString()
-                      .replace(/[^0-9]/g, '')}`;
+                      .replace(/[^0-9]/g, '')}.${
+                      fileType.find((i) => i.value === _fileType)?.name
+                    }`;
                     return response.blob().then((blob) => ({ blob, filename }));
                   })
                   .then(({ blob, filename }) => {
