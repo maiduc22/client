@@ -10,6 +10,7 @@ import {
   Group,
   Modal,
   NumberInput,
+  Select,
   Stack,
   Tabs,
   Text
@@ -24,6 +25,7 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import CustomLoader from '@/components/custom/CustomLoader';
 import { useAuthContext } from '@/hooks/context';
+import { CONFIG } from '@/configs';
 
 export const Point = () => {
   const { state, logout } = useAuthContext();
@@ -31,8 +33,20 @@ export const Point = () => {
     (state: RootState) => state.semester
   );
   const [_semesters, setSemesters] = useState<ISemester[] | []>(semesters);
-
-  console.log(state);
+  const [openedDownloadModal, { open, close }] = useDisclosure();
+  const [_exportType, setExportType] = useState(() => {
+    if (state.role === IUserRole.STUDENT) {
+      return '3';
+    }
+    return '1';
+  });
+  const [_fileType, setFileType] = useState('1');
+  const [_className, setClassName] = useState(() => {
+    if (state.role !== IUserRole.ADMIN) {
+      return state.className;
+    }
+    return classList[0];
+  });
   useEffect(() => {
     setSemesters(semesters);
   }, [semesters]);
@@ -43,9 +57,14 @@ export const Point = () => {
   return (
     <>
       <Stack>
-        <Text fw={600} size={'lg'}>
-          Quản lý điểm
-        </Text>
+        <Group align={'center'} position="apart">
+          <Text fw={600} size={'lg'}>
+            Quản lý điểm
+          </Text>
+          <Button variant={'outline'} onClick={() => open()}>
+            Tải báo cáo
+          </Button>
+        </Group>
         <Tabs variant={'outline'} defaultValue={_semesters[0].semesterName}>
           <Tabs.List>
             {_semesters.map((semester) => (
@@ -95,6 +114,86 @@ export const Point = () => {
             </Tabs.Panel>
           ))}
         </Tabs>
+
+        <Modal
+          centered
+          title="Tải báo cáo"
+          opened={openedDownloadModal}
+          onClose={close}
+          size={'xs'}
+        >
+          <Stack justify="apart">
+            <Stack h={500}>
+              <Select
+                value={_exportType}
+                onChange={(value) => setExportType(value ?? '1')}
+                data={exportType.filter((item) => {
+                  if (state.role === IUserRole.STUDENT) {
+                    return item.value === '3';
+                  }
+                  return true;
+                })}
+                label="Chọn loại báo cáo"
+              />
+              <Select
+                value={_fileType}
+                onChange={(value) => setFileType(value ?? '1')}
+                data={fileType}
+                label="Định dạng"
+              />
+              <Select
+                defaultValue={classList[0]}
+                data={classList
+                  .filter((item) => {
+                    if (state.role !== IUserRole.ADMIN) {
+                      return item === state.className;
+                    }
+                    return true;
+                  })
+                  .map((item) => ({
+                    value: item,
+                    label: item
+                  }))}
+                label="Lớp"
+                value={_className}
+                onChange={(value) => setClassName(value ?? '')}
+              />
+            </Stack>
+            <Group
+              position="right"
+              onClick={() => {
+                fetch(
+                  `${CONFIG.APP_URL}/Reports/export-file?exportType=${_exportType}&fileType=${_fileType}&className=${_className}`,
+                  {
+                    headers: {
+                      accept: '*/*'
+                    }
+                  }
+                )
+                  .then((response) => {
+                    const filename = `${
+                      exportType.find((i) => i.value === _exportType)?.name
+                    }_${_className}`;
+                    return response.blob().then((blob) => ({ blob, filename }));
+                  })
+                  .then(({ blob, filename }) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                  })
+                  .catch(() => alert('Failed to download file'));
+                close();
+              }}
+            >
+              <Button>Xác nhận</Button>
+            </Group>
+          </Stack>
+        </Modal>
       </Stack>
     </>
   );
@@ -115,7 +214,6 @@ const TabContent = ({
   const [_selectedStudent, setSelectedStudent] = useState<IStudent | null>(
     null
   );
-
   const [openedModal, { open: openModal, close: closeModal }] = useDisclosure();
   const {
     data: records,
@@ -216,6 +314,7 @@ const TabContent = ({
             ? 'Thông tin điểm'
             : 'Danh sách học sinh'}
         </Text>
+
         <DataTable
           minHeight={300}
           withBorder
@@ -357,3 +456,14 @@ const calculateFinalScore = (
 ): number => {
   return Math.round((midtermScore * 0.4 + finalScore * 0.6) * 100) / 100;
 };
+
+const exportType = [
+  { value: '1', label: 'Báo cáo điểm', name: 'Baocaodiem' },
+  { value: '2', label: 'Báo cáo học lực', name: 'Baocaohocluc' },
+  { value: '3', label: 'Báo cáo thành tích', name: 'BaocaothanhTich' }
+];
+
+const fileType = [
+  { value: '1', label: 'Excel', name: '.xlsx' },
+  { value: '2', label: 'PDF', name: '.pdf' }
+];

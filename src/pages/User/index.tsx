@@ -1,14 +1,8 @@
-import { useAuthContext } from '@/hooks/context';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import usePagination from '@/hooks/use-pagination';
 import { RootState } from '@/redux/reducers';
 import { UserActions } from '@/redux/reducers/user/user.action';
-import {
-  classList,
-  IUser,
-  IUserRole,
-  IUserRoleDict
-} from '@/types/models/IUser';
+import { IUser, IUserRole, IUserRoleDict } from '@/types/models/IUser';
 import {
   Badge,
   Button,
@@ -16,18 +10,16 @@ import {
   Group,
   Input,
   Modal,
-  Select,
   Stack,
   Text
 } from '@mantine/core';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ModalAddUser } from './components/ModalAddUser';
 import { ModalEditUser } from './components/ModalEditUser';
 import { Modals } from '@/utils/modals';
-import { CONFIG } from '@/configs';
 
 export const User = () => {
   const dispatch = useAppDispatch();
@@ -45,7 +37,6 @@ export const User = () => {
     useDisclosure();
   const [openedEditModal, { open: openEditModal, close: closeEditModal }] =
     useDisclosure();
-  const [openedDownloadModal, { open, close }] = useDisclosure();
   const fileRef = useRef<HTMLButtonElement>(null);
 
   useEffect(
@@ -137,10 +128,6 @@ export const User = () => {
     }
   });
 
-  const [_exportType, setExportType] = useState('1');
-  const [_fileType, setFileType] = useState('1');
-  const [_className, setClassName] = useState('1');
-
   return (
     <>
       <Stack>
@@ -154,9 +141,6 @@ export const User = () => {
             onChange={(e) => setQuery(e.currentTarget.value)}
           />
           <Group>
-            <Button variant={'outline'} onClick={() => open()}>
-              Tải báo cáo
-            </Button>
             <Button
               variant={'outline'}
               onClick={() => fileRef.current?.click()}
@@ -229,84 +213,6 @@ export const User = () => {
           }
         }}
       />
-
-      <Modal
-        centered
-        title="Tải báo cáo"
-        opened={openedDownloadModal}
-        onClose={close}
-        size={'xs'}
-      >
-        <Stack justify="apart">
-          <Stack h={500}>
-            <Select
-              value={_exportType}
-              onChange={(value) => setExportType(value ?? '1')}
-              data={exportType}
-              label="Chọn loại báo cáo"
-            />
-            <Select
-              value={_fileType}
-              onChange={(value) => setFileType(value ?? '1')}
-              data={fileType}
-              label="Định dạng"
-            />
-            <Select
-              data={classList.map((item) => ({
-                value: item,
-                label: item
-              }))}
-              label="Lớp"
-              value={_className}
-              onChange={(value) => setClassName(value ?? '')}
-            />
-          </Stack>
-          <Group
-            position="right"
-            onClick={() => {
-              fetch(
-                `${CONFIG.APP_URL}/Reports/export-file?exportType=${_exportType}&fileType=${_fileType}&className=${_className}`,
-                {
-                  headers: {
-                    accept: '*/*'
-                  }
-                }
-              )
-                .then((response) => {
-                  const filename = `${
-                    exportType.find((i) => i.value === _exportType)?.name
-                  }_${_className}`;
-                  return response.blob().then((blob) => ({ blob, filename }));
-                })
-                .then(({ blob, filename }) => {
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.style.display = 'none';
-                  a.href = url;
-                  a.download = filename;
-                  document.body.appendChild(a);
-                  a.click();
-                  window.URL.revokeObjectURL(url);
-                })
-                .catch(() => alert('Failed to download file'));
-              close();
-            }}
-          >
-            <Button>Xác nhận</Button>
-          </Group>
-        </Stack>
-      </Modal>
     </>
   );
 };
-
-const exportType = [
-  { value: '1', label: 'Báo cáo điểm', name: 'Baocaodiem' },
-  { value: '2', label: 'Báo cáo học lực', name: 'Baocaohocluc' },
-  { value: '3', label: 'Báo cáo thành tích', name: 'BaocaothanhTich' }
-];
-
-const fileType = [
-  { value: '1', label: 'Excel', name: '.xlsx' },
-  { value: '2', label: 'PDF', name: '.pdf' }
-];
