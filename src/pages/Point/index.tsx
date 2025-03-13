@@ -167,7 +167,7 @@ export const Point = () => {
                   {
                     headers: {
                       accept: '*/*',
-                      Authorization: `Bearer ${localStorage.getItem('token')}`
+                      Authorization: `${localStorage.getItem('token')}`
                     }
                   }
                 )
